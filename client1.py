@@ -1,0 +1,29 @@
+import socket
+import threading
+
+def receive_messages(client_socket):
+    while True:
+        try:
+            message = client_socket.recv(1024).decode()
+            if message:
+                print(f"\n{message}")
+                print("You: ", end='', flush=True)
+        except:
+            break
+
+server_port = 9999  # Client 1 connects to Server 1
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(('localhost', server_port))
+
+username = input("Enter your username (Client 1): ")
+print("Connected to Server 1. Type your messages below:")
+
+threading.Thread(target=receive_messages, args=(client,), daemon=True).start()
+
+while True:
+    message = input("You: ")
+    if message.lower() == 'exit':
+        break
+    client.send(f"{username}: {message}".encode())
+
+client.close()
